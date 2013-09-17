@@ -1,0 +1,41 @@
+#############################
+# Eclipse Metadata Bullshit #
+#############################
+*.metadata*
+
+###################################
+# Compiler/Linker Generated Files #
+###################################
+tags
+*.o
+*.so
+*.hex
+*.pp
+*.map
+*.depend
+*.lst
+*.elf
+*.hdo*
+
+######################
+# OS Generated Files #
+######################
+.DS_Store*
+ehthumbs.db
+Icon?
+Thumbs.db
+
+#########################
+# OTcom version file    #
+#########################
+otc_version.h
+
+#########################
+# Qt local files        #
+#########################
+*.user
+
+#################
+# vim swap file #
+#################
+*.swp

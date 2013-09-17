@@ -1,0 +1,268 @@
+*************************
+*        OTCOM          *
+*************************
+
+1. Quick Start
+   -----------
+
+    get source -> git clone git://opentag.git.sourceforge.net/gitroot/opentag/OTcom
+    build      -> qmake && make
+    real clean -> make clean && rm Makefile && qmake && make clean && make
+    run        -> ../bin/otcom
+    make tags  -> ctags . *
+
+
+2. Log
+   ---
+
+    Things that OTCOM can do as of Feb 14, 2012
+
+    GUI with menus for selecting com port, flow mode, baud rate, print mode, clear screen, start/stop logging
+    GUI with command prompt that can interpret and execute command (see list above)
+    Read and display raw data from the com port
+    Parse NDEF+MPIPE packets and display parsed data
+    Open a Host Server, accept connections over a socket
+    Send data over a socket (a OTC protocol header is added to the raw data)
+    Receive data over a socket using the OTC protocol
+
+
+3. Detailed Description
+   --------------------
+
+3.1. Build & Install
+
+3.1.1. Get source from SourceForge
+
+    -> git clone git://opentag.git.sourceforge.net/gitroot/opentag/OTcom
+
+3.1.2. QT4 & Ruby 
+
+    Verify that C++ compiler is installed
+    -> g++ -v
+    -> (if not) sudo aptitude install build-essential
+        For rpm-based distribution: yum install gcc-c++
+
+    Install Qt4 development tools
+    -> sudo apt-get install libqt4-dev libqt4-qt3support
+        For rpm-based distribution: yum install qt-devel
+
+    Qt3 conflicts with Qt4 so remove it if it is already installed
+    -> sudo apt-get remove qt3-dev-tools
+
+    Add usb support for Ruby (but should be removed later)
+    -> sudo apt-get install libusb-dev
+        For rpm-based distribution: yum install libusb-devel
+
+3.1.3. Build
+
+     configure using qmake (no output to this command). Other distributions may have qmake4 or qmake-qt4.
+     -> qmake 
+
+     build otcom
+     -> make
+
+     tricky rebuild : needed when changing some header files names or content that are used by the qmake preprocessor
+     -> make clean && rm Makefile && qmake && make clean && make
+
+     the binary is created in
+     ../bin/otcom
+
+3.1.4. Create mapping for com ports
+
+    For the particular case of the virtual com through a FTDI chip, 
+    a symbolic link should be made for each USB port. By default 
+    the commap directory should be placed in /usr. It is possible to 
+    change the default commap path to whatever you want in file otcConfig.h.
+
+    mkdir /usr/commap
+    ln -s /dev/ttyUSB0 /usr/commap/com0
+    ln -s /dev/ttyUSB1 /usr/commap/com1
+    ln -s /dev/ttyUSB2 /usr/commap/com2
+    ...
+    ln -s /dev/ttyUSBX /usr/commap/comX
+
+    launch OTCom
+    ../bin/otcom
+
+3.2. Usage
+
+    The purpose of the tool is to read and write packets over the com port. 
+    Another program can connect to OTCom over a socket using the OTC protocol 
+    (see below) and thus communicate with the OT stack through the OTCom An NDEF 
+    packets parser & OT packets parser are implemented to suit the need to 
+    communicate with an OT stack over an UART.
+
+3.2.1 Print Modes
+    
+    -----------------------------------------------------------------------------------
+    | Print Mode    | Description                                                     |
+    -----------------------------------------------------------------------------------
+    | None          | No incoming data is displayed in the OTCom window.              |
+    -----------------------------------------------------------------------------------
+    | Raw           | Prints data received over the serial port as is (no formatting) |
+    -----------------------------------------------------------------------------------
+    | NDEF + OT     | Considers the packet has a valid NDEF format of the subset      |
+    |               | used by OT (header can be only 0xDD, 0xBD, 0x36 or 0x56, type   |
+    |               | length is 0, id length when available is 2). Displays in format |
+    |               | [seq nb] [id] [data]. If the CRC fails the packet is coloured   |
+    |               | in red. This mode supports chunking.                            |
+    -----------------------------------------------------------------------------------
+
+3.2.2. Establish communication
+
+    Launch OTCom
+    Select com port, baud rate & flow control mode from the user interface.
+    Select print mode (none, raw, NDEF parser enabled or NDEF+OT parsers enabled)
+    Whatever the print mode, data received over the com port is piped to the socket, 
+    and data received over the socket from another program is piped to the com port.
+
+3.2.3. Socket
+     
+    OTCom opens a server, so that other programs program can connect to OTCom over 
+    a socket using the OTC protocol (see below) and thus communicate with the OT stack 
+    through the OTCom. Raw data received over the com port is piped to the socket, 
+    and data received over the socket from another program is piped to the com port 
+    as is (except for the OTC protocol header).
+
+3.2.4. Command prompt
+
+    A command prompt is available in the OTCom GUI. The following commands can be interpreted
+
+    |------------------------------------------------------------------------------------------|
+    | Command  | Description                 | Syntax (*)                                      |
+    |------------------------------------------------------------------------------------------|
+    | :S       | Print otcom status          | :S                                              |
+    |------------------------------------------------------------------------------------------|
+    | :EL      | Toggle local echo           | :EL                                             |
+    |------------------------------------------------------------------------------------------|
+    | :ER      | Toggle remote echo (**)     | :ER                                             |
+    |------------------------------------------------------------------------------------------|
+    | :V       | Toggle verbose mode         | :V                                              |
+    |------------------------------------------------------------------------------------------|
+    | OT       | ALP null template           | OT                                              | 
+    |          | (null command)              |                                                 |
+    |------------------------------------------------------------------------------------------|
+    | OT?      | ALP null with ACK           | OT?                                             | 
+    |          | (ping target)               |                                                 |
+    |------------------------------------------------------------------------------------------|
+    | OT+R     | Read file data              | OT+R <filetype> <id_a>,[off],[len]              |
+    |          |                             |                 <id_b>,[off],[len] ...          |                                  |
+    |------------------------------------------------------------------------------------------|
+    | OT+RA    | Read file header and data   | OT+RA <filetype> <id_a>,[off],[len]             |
+    |          | (read all)                  |                  <id_b>,[off],[len] ...         |     
+    |------------------------------------------------------------------------------------------|
+    | OT+RP    | Read file permissions       | OT+RP <filetype> <id_a> <id_b> ...              |
+    |------------------------------------------------------------------------------------------|
+    | OT+RH    | Read file header            | OT+RH <filetype> <id_a> <id_b> ...              |
+    |------------------------------------------------------------------------------------------|
+    | OT+DEL   | Delete file without ACK     | OT+DEL <filetype> <id_a> <id_b> ...             |
+    |------------------------------------------------------------------------------------------|
+    | OT+DEL?  | Delete file with ACK        | OT+DEL? <filetype> <id_a> <id_b> ...            |
+    |------------------------------------------------------------------------------------------|
+    | OT+NEW   | Create new file without ACK | OT+NEW <filetype> <id_a> <id_b> ...             |
+    |------------------------------------------------------------------------------------------|
+    | OT+NEW?  | Create new file with ACK    | OT+NEW? <filetype> <id_a> <id_b> ...            |
+    |------------------------------------------------------------------------------------------|
+    | OT+DEF   | Restore to default value    | OT+DEF <filetype> <id_a> <id_b> ...             |
+    |          | without ACK                 |                                                 |     
+    |------------------------------------------------------------------------------------------|
+    | OT+DEF?  | Restore to default value    | OT+DEF? <filetype> <id_a> <id_b> ...            |
+    |          | with ACK                    |                                                 |     
+    |------------------------------------------------------------------------------------------|
+    | OT+W     | Write data to file          | OT+W <filetype> <id_a>,[off],[len] <data>       |
+    |          | without ACK                 |                 <id_b>,[off],[len] <data> ...   |    
+    |------------------------------------------------------------------------------------------|
+    | OT+W?    | Write data to file          | OT+W? <filetype> <id_a>,[off],[len] <data>      |
+    |          | with ACK                    |                  <id_b>,[off],[len] <data> ...  |       
+    |------------------------------------------------------------------------------------------|
+    | OT+WP    | Write permissions to file   | OT+WP <filetype> <id_a> <perm>                  |
+    |          | without ACK                 |                  <id_b> <perm> ...              |        
+    |------------------------------------------------------------------------------------------|
+    | OT+WP?   | Write permissions to file   | OT+WP? <filetype> <id_a> <perm>                 |
+    |          | with ACK                    |                   <id_b> <perm> ...             |
+    |------------------------------------------------------------------------------------------|
+
+    (*) numbers are in hexadecimal
+    (**) echo bit in the command is interpreted on the target, available on the WL branch
+
+    As defined in the Mode 2 specification:
+
+    <filetype> : GFB, ISFB, ISFSB
+    <id> : file index
+    [off] : start read/write offset in the file (optional, default 0)
+    [len] :read/write length (optional, default 0 = read/write all)
+    <data> : data to be written in the file
+    <perm> : permission byte
+
+
+3.2.5. OTC Protocol
+
+    OTC protocol consists, of a simple header :
+
+    1 byte sync word
+    2 byte size
+    1 byte packet type code
+    N byte payload
+
+    ------------------------------------------------------------------------------------
+    | sync | size (hi) | size (lo) | packet type | pload (0) | ... | ... | pload (N-1) |
+    ------------------------------------------------------------------------------------
+
+    The following packet types are currently supported :
+
+    ---------------------------------------------------------------------------------------------
+    |                Code                  |                    Meaning                         |
+    ---------------------------------------------------------------------------------------------
+    | OTC_PROTOCOL_BAUDRATE_CHANGE_REQUEST | Change baud Rate to value contained in the payload |
+    ---------------------------------------------------------------------------------------------
+    | OTC_PROTOCOL_RECONNECT_COM_PORT      | Reconnect com port                                 |
+    ---------------------------------------------------------------------------------------------
+    | OTC_PROTOCOL_KILL_OTC                | Kill OTCom                                         |
+    ---------------------------------------------------------------------------------------------
+    | OTC_PROTOCOL_STATUS                  | Request status                                     |
+    ---------------------------------------------------------------------------------------------
+    | OTC_PROTOCOL_STATUS_RESULT           | Give status                                        |
+    ---------------------------------------------------------------------------------------------
+    | OTC_PROTOCOL_SEND_AS_IS              | Send payload over com port                         |
+    ---------------------------------------------------------------------------------------------
+    | OTC_PROTOCOL_RAW_DATA                | Send raw data over the socket (as payload)         |
+    ---------------------------------------------------------------------------------------------
+
+4. Source code
+   -----------
+
+4.1. Files
+
+    ------------------------------------------------------------------------------------------------
+    | Source code file name   |                   Description             | Related header file    |
+    ------------------------------------------------------------------------------------------------
+    | otc_main.cpp            | Main entry, OTCom main icon               | otc_main.h             |
+    |                         |                                           | otc_version.h          |
+    ------------------------------------------------------------------------------------------------
+    | otc_window.cpp          | Main window (there's only one ...).       | otc_window.h           |
+    |                         | Buttons and actions.                      |                        |
+    ------------------------------------------------------------------------------------------------
+    | otc_command.cpp         | Parser for commands on the command prompt | otc_command.h          |
+    |                         |                                           | otc_alp.h              |
+    ------------------------------------------------------------------------------------------------
+    | otc_serial.cpp          | Com port toolkit & read engine            | otc_serial.h           |
+    ------------------------------------------------------------------------------------------------
+    | otc_mpipe.cpp           | NDEF+MPIPE parser                         | otc_mpipef.h           |
+    ------------------------------------------------------------------------------------------------
+    | otc_socket.cpp          | Socket (Host Server + Clients) toolkit    | otc_socket.h           |
+    |                         | Socket data read engine. Implements the   |                        |
+    |                         | OTC protocol.                             |                        |
+    ------------------------------------------------------------------------------------------------ 
+    | otc_device.cpp          | Object, putting it all together           | otc_device.h           |
+    ------------------------------------------------------------------------------------------------ 
+
+
+4.2. Versioning
+
+    The following format is used : Y.MMDD (ex. version of Feb 14, 2012 is 2.0214). Version number 
+    is automatically generated at compile time. If the source code is part of a git repository, 
+    the date of the commit is used. Else, the compilation date is used.
+
+
+
+

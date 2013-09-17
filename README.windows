@@ -1,0 +1,41 @@
+############# building OTcom on MS Windows ##################
+Install MinGW:
+    -> http://www.mingw.org/wiki/Getting_Started
+        Upon installation, be sure to include C++ support and MSYS.
+
+Install Qt4 SDK for windows:
+    -> http://qt.nokia.com/downloads
+
+###############################################################################
+1) Open MSYS console:
+    Start -> All Programs -> MinGW -> MinGW Shell
+
+2) double-check make version:
+    -> make -v
+    GNU Make 3.81
+    This program built for i686-pc-mingw32
+
+3) ensure c++ compiler installed:
+    -> g++ -v
+
+4) add QtSDK to path:
+    $ export PATH=/c/QtSDK/Desktop/Qt/4.8.0/mingw/bin:$PATH
+    If different location,
+        open Qt-MinGW console to see QTDIR environment variable:
+        Start -> All Programs -> Qt SDK -> Desktop -> Qt for Desktop (MinGW)
+
+5) cd to OTcom source directory
+    i.e.: cd /c/src/OTcom
+
+6) qmake
+
+7) edit OTC_COM_PORTS_MAX_NB in otc_main.h to a value which reaches
+        COM port number of your plugged-in Dash7 device.
+
+8) make
+
+Run otcom.exe from debug subdirectory
+
+For visibility of stdout (for printf): otc.pro file has added CONFIG += console.
+
+
