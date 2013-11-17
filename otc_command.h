@@ -46,8 +46,7 @@
 class otc_command_parser;
 
 
-class otc_command
-{
+class otc_command {
 public :
 	otc_command(const QString& mainarg,const QString& argsSyntax,const QString& help);
     virtual ~otc_command() {;};
@@ -74,19 +73,16 @@ protected :
 //                                          //
 // ---------------------------------------- //
 
-typedef enum 
-{
+typedef enum {
     OTC_COMMAND_INTERNAL_ID_STATUS = 0,
     OTC_COMMAND_INTERNAL_ID_VERBOSE,
     OTC_COMMAND_INTERNAL_ID_ECHO_REMOTE,
     OTC_COMMAND_INTERNAL_ID_ECHO_LOCAL,
     OTC_COMMAND_INTERNAL_ID_QTY
-    
 } otc_command_internal_id_t;
 
 
-class otc_command_internal : public otc_command
-{
+class otc_command_internal : public otc_command {
 public :
     otc_command_internal(const QString& mainarg, otc_command_internal_id_t id, const QString& help);
     virtual ~otc_command_internal() {;}
@@ -101,8 +97,7 @@ private :
 //                                          //
 // ---------------------------------------- //
 
-class otc_command_null : public otc_command
-{
+class otc_command_null : public otc_command {
 public :
     otc_command_null(const QString& mainarg, unsigned char cmd, const QString& help);
     virtual ~otc_command_null() {;}
@@ -119,8 +114,7 @@ private :
 //                                          //
 // ---------------------------------------- //
 
-class otc_command_raw : public otc_command
-{
+class otc_command_raw : public otc_command {
 public :
     otc_command_raw(const QString& mainarg, unsigned char cmd, const QString& help);
     virtual ~otc_command_raw() {;}
@@ -142,17 +136,14 @@ private :
 //                                          //
 // ---------------------------------------- //
 
-typedef enum 
-{
+typedef enum {
     OTC_COMMAND_FILE_TEMPLATE_SHORT, 
     OTC_COMMAND_FILE_TEMPLATE_READ,
     OTC_COMMAND_FILE_TEMPLATE_WRITE
-
 } otc_command_file_template_t;
 
 
-class otc_command_file : public otc_command
-{
+class otc_command_file : public otc_command {
 public :
     otc_command_file(const QString& mainarg, unsigned char cmd, otc_command_file_template_t temp, const QString& help);
     virtual ~otc_command_file() {;}
@@ -175,8 +166,7 @@ private :
 //                                          //
 // ---------------------------------------- //
 
-class otc_command_parser : public QLineEdit
-{
+class otc_command_parser : public QLineEdit {
 	friend class otcExecCommand;
 	friend class otcHelpCommand;
 	friend class otcWincCommand;

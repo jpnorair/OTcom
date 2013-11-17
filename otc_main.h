@@ -32,43 +32,37 @@
 #define OTC_COM_PORTS_MAP_PATH  "/usr/commap"
 
 
-typedef enum 
-{
+typedef enum {
     OTC_LINK_COM = 0,
     OTC_LINK_USB,
     OTC_LINK_SOCKET
-
 } OTC_LINK_T;
 
-typedef enum 
-{
+
+typedef enum {
     OTC_FLOW_UNVALID = -1,
     OTC_FLOW_NONE = 0,
     OTC_FLOW_HARDWARE,
     OTC_FLOW_XONXOFF
-
 } OTC_FLOW_T;
 
-typedef enum 
-{
+
+typedef enum {
 	OTC_PRINT_MODE_INVALID = -1,
 	OTC_PRINT_MODE_HIDE = 0,
 	OTC_PRINT_MODE_RAW,
 	OTC_PRINT_MODE_NDEF,
 	OTC_PRINT_MODE_NDEF_PLUS_OT,
 	OTC_PRINT_MODE_QTY
-
 } OTC_PRINT_MODE_T;
 
 
-typedef	enum 
-{
+typedef	enum {
     OTC_ERROR_NONE                          = 0,
     OTC_ERROR_UNKNOWN                       = -1,
     OTC_ERROR_SYNTAX                        = -10,
     OTC_ERROR_MSG_TOO_LONG                  = -11,
     OTC_ERROR_MULTIMSG_CMD_NOT_SUPPORTED    = -12
-
 } otc_error_t;
 
 
@@ -77,8 +71,7 @@ class otcLogWidget;
 class otcMainWindow;
 
 
-class otcConfig
-{
+class otcConfig {
 public :
 //#   ifdef WIN32
     static int			    argComPort;

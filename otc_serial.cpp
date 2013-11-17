@@ -21,7 +21,9 @@
 /// @file           otc_serial.cpp
 /// @brief          Serial link toolkit
 ///                 Functions for reading, buffering and parsing serial data
-//
+///
+/// @todo JPN: Update the socket features and the treatment of socket packets
+///            to use MPipe2.
 /// =========================================================================
   
 #ifndef WIN32

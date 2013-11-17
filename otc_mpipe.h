@@ -18,8 +18,8 @@
 //
 /// @endcopyright
 //
-/// @file           otc_mpipe.h
-/// @brief          OT Mpipe Protocol (Message Builder + Parser)
+/// @file           otc_mpipe2.h
+/// @brief          OT MPipe2 Protocol (Message Builder + Parser)
 ///                 NDEF builder and parser (OT restricted subset)
 //
 // =========================================================================
@@ -82,61 +82,70 @@
 
 // ----------------------------------
 //
-// CRC table (CRC16 CCITT value)
+// CRC table (CRC16 value)
 //
 // ----------------------------------
 
-const unsigned short crcLut[] = 
-{
-    0x0000,    0x1021,    0x2042,    0x3063,    0x4084,    0x50A5,    0x60C6,    0x70E7,
-    0x8108,    0x9129,    0xA14A,    0xB16B,    0xC18C,    0xD1AD,    0xE1CE,    0xF1EF,
-    0x1231,    0x0210,    0x3273,    0x2252,    0x52B5,    0x4294,    0x72F7,    0x62D6,
-    0x9339,    0x8318,    0xB37B,    0xA35A,    0xD3BD,    0xC39C,    0xF3FF,    0xE3DE,
-    0x2462,    0x3443,    0x0420,    0x1401,    0x64E6,    0x74C7,    0x44A4,    0x5485,
-    0xA56A,    0xB54B,    0x8528,    0x9509,    0xE5EE,    0xF5CF,    0xC5AC,    0xD58D,
-    0x3653,    0x2672,    0x1611,    0x0630,    0x76D7,    0x66F6,    0x5695,    0x46B4,
-    0xB75B,    0xA77A,    0x9719,    0x8738,    0xF7DF,    0xE7FE,    0xD79D,    0xC7BC,
-    0x48C4,    0x58E5,    0x6886,    0x78A7,    0x0840,    0x1861,    0x2802,    0x3823,
-    0xC9CC,    0xD9ED,    0xE98E,    0xF9AF,    0x8948,    0x9969,    0xA90A,    0xB92B,
-    0x5AF5,    0x4AD4,    0x7AB7,    0x6A96,    0x1A71,    0x0A50,    0x3A33,    0x2A12,
-    0xDBFD,    0xCBDC,    0xFBBF,    0xEB9E,    0x9B79,    0x8B58,    0xBB3B,    0xAB1A,
-    0x6CA6,    0x7C87,    0x4CE4,    0x5CC5,    0x2C22,    0x3C03,    0x0C60,    0x1C41,
-    0xEDAE,    0xFD8F,    0xCDEC,    0xDDCD,    0xAD2A,    0xBD0B,    0x8D68,    0x9D49,
-    0x7E97,    0x6EB6,    0x5ED5,    0x4EF4,    0x3E13,    0x2E32,    0x1E51,    0x0E70,
-    0xFF9F,    0xEFBE,    0xDFDD,    0xCFFC,    0xBF1B,    0xAF3A,    0x9F59,    0x8F78,
-    0x9188,    0x81A9,    0xB1CA,    0xA1EB,    0xD10C,    0xC12D,    0xF14E,    0xE16F,
-    0x1080,    0x00A1,    0x30C2,    0x20E3,    0x5004,    0x4025,    0x7046,    0x6067,
-    0x83B9,    0x9398,    0xA3FB,    0xB3DA,    0xC33D,    0xD31C,    0xE37F,    0xF35E,
-    0x02B1,    0x1290,    0x22F3,    0x32D2,    0x4235,    0x5214,    0x6277,    0x7256,
-    0xB5EA,    0xA5CB,    0x95A8,    0x8589,    0xF56E,    0xE54F,    0xD52C,    0xC50D,
-    0x34E2,    0x24C3,    0x14A0,    0x0481,    0x7466,    0x6447,    0x5424,    0x4405,
-    0xA7DB,    0xB7FA,    0x8799,    0x97B8,    0xE75F,    0xF77E,    0xC71D,    0xD73C,
-    0x26D3,    0x36F2,    0x0691,    0x16B0,    0x6657,    0x7676,    0x4615,    0x5634,
-    0xD94C,    0xC96D,    0xF90E,    0xE92F,    0x99C8,    0x89E9,    0xB98A,    0xA9AB,
-    0x5844,    0x4865,    0x7806,    0x6827,    0x18C0,    0x08E1,    0x3882,    0x28A3,
-    0xCB7D,    0xDB5C,    0xEB3F,    0xFB1E,    0x8BF9,    0x9BD8,    0xABBB,    0xBB9A,
-    0x4A75,    0x5A54,    0x6A37,    0x7A16,    0x0AF1,    0x1AD0,    0x2AB3,    0x3A92,
-    0xFD2E,    0xED0F,    0xDD6C,    0xCD4D,    0xBDAA,    0xAD8B,    0x9DE8,    0x8DC9,
-    0x7C26,    0x6C07,    0x5C64,    0x4C45,    0x3CA2,    0x2C83,    0x1CE0,    0x0CC1,
-    0xEF1F,    0xFF3E,    0xCF5D,    0xDF7C,    0xAF9B,    0xBFBA,    0x8FD9,    0x9FF8,
-    0x6E17,    0x7E36,    0x4E55,    0x5E74,    0x2E93,    0x3EB2,    0x0ED1,    0x1EF0
-};
+#include "crc/crc16_table.h"
+
+const unsigned short crcLut[] = { 
+    CRCx00, CRCx01, CRCx02, CRCx03, CRCx04, CRCx05, CRCx06, CRCx07, 
+    CRCx08, CRCx09, CRCx0A, CRCx0B, CRCx0C, CRCx0D, CRCx0E, CRCx0F, 
+    CRCx10, CRCx11, CRCx12, CRCx13, CRCx14, CRCx15, CRCx16, CRCx17, 
+    CRCx18, CRCx19, CRCx1A, CRCx1B, CRCx1C, CRCx1D, CRCx1E, CRCx1F, 
+    CRCx20, CRCx21, CRCx22, CRCx23, CRCx24, CRCx25, CRCx26, CRCx27, 
+    CRCx28, CRCx29, CRCx2A, CRCx2B, CRCx2C, CRCx2D, CRCx2E, CRCx2F, 
+    CRCx30, CRCx31, CRCx32, CRCx33, CRCx34, CRCx35, CRCx36, CRCx37, 
+    CRCx38, CRCx39, CRCx3A, CRCx3B, CRCx3C, CRCx3D, CRCx3E, CRCx3F, 
+    CRCx40, CRCx41, CRCx42, CRCx43, CRCx44, CRCx45, CRCx46, CRCx47, 
+    CRCx48, CRCx49, CRCx4A, CRCx4B, CRCx4C, CRCx4D, CRCx4E, CRCx4F, 
+    CRCx50, CRCx51, CRCx52, CRCx53, CRCx54, CRCx55, CRCx56, CRCx57, 
+    CRCx58, CRCx59, CRCx5A, CRCx5B, CRCx5C, CRCx5D, CRCx5E, CRCx5F, 
+    CRCx60, CRCx61, CRCx62, CRCx63, CRCx64, CRCx65, CRCx66, CRCx67, 
+    CRCx68, CRCx69, CRCx6A, CRCx6B, CRCx6C, CRCx6D, CRCx6E, CRCx6F, 
+    CRCx70, CRCx71, CRCx72, CRCx73, CRCx74, CRCx75, CRCx76, CRCx77, 
+    CRCx78, CRCx79, CRCx7A, CRCx7B, CRCx7C, CRCx7D, CRCx7E, CRCx7F, 
+    CRCx80, CRCx81, CRCx82, CRCx83, CRCx84, CRCx85, CRCx86, CRCx87, 
+    CRCx88, CRCx89, CRCx8A, CRCx8B, CRCx8C, CRCx8D, CRCx8E, CRCx8F, 
+    CRCx90, CRCx91, CRCx92, CRCx93, CRCx94, CRCx95, CRCx96, CRCx97, 
+    CRCx98, CRCx99, CRCx9A, CRCx9B, CRCx9C, CRCx9D, CRCx9E, CRCx9F, 
+    CRCxA0, CRCxA1, CRCxA2, CRCxA3, CRCxA4, CRCxA5, CRCxA6, CRCxA7, 
+    CRCxA8, CRCxA9, CRCxAA, CRCxAB, CRCxAC, CRCxAD, CRCxAE, CRCxAF, 
+    CRCxB0, CRCxB1, CRCxB2, CRCxB3, CRCxB4, CRCxB5, CRCxB6, CRCxB7, 
+    CRCxB8, CRCxB9, CRCxBA, CRCxBB, CRCxBC, CRCxBD, CRCxBE, CRCxBF, 
+    CRCxC0, CRCxC1, CRCxC2, CRCxC3, CRCxC4, CRCxC5, CRCxC6, CRCxC7, 
+    CRCxC8, CRCxC9, CRCxCA, CRCxCB, CRCxCC, CRCxCD, CRCxCE, CRCxCF, 
+    CRCxD0, CRCxD1, CRCxD2, CRCxD3, CRCxD4, CRCxD5, CRCxD6, CRCxD7, 
+    CRCxD8, CRCxD9, CRCxDA, CRCxDB, CRCxDC, CRCxDD, CRCxDE, CRCxDF, 
+    CRCxE0, CRCxE1, CRCxE2, CRCxE3, CRCxE4, CRCxE5, CRCxE6, CRCxE7, 
+    CRCxE8, CRCxE9, CRCxEA, CRCxEB, CRCxEC, CRCxED, CRCxEE, CRCxEF, 
+    CRCxF0, CRCxF1, CRCxF2, CRCxF3, CRCxF4, CRCxF5, CRCxF6, CRCxF7, 
+    CRCxF8, CRCxF9, CRCxFA, CRCxFB, CRCxFC, CRCxFD, CRCxFE, CRCxFF
+}; 
 
 // ----------------------------------
 //
-// General NDEF Definitions
+// General Definitions
 //
 // ----------------------------------
 
-/// NDEF TNF Field Values
-/// ---------------------
+
+/// MPipe2 Sync Word
+/// ----------------
+/// The beginning of each MPipe2 packet is FF55
+#define OTC_MPIPE_SYNC_WORD         0xFF55
+#define OTC_MPIPE_SYNC_BYTE_0       0xFF
+#define OTC_MPIPE_SYNC_BYTE_1       0x55
+
+
+
+/// ALP/NDEF TNF Field Values
+/// -------------------------
 /// Constants and an enum to define the TNF (Type Name Field).  TNF is a 3 bit
-/// id that goes in the same Message/Record byte as the NDEF Control Bits.
-/// OpenTag currently uses the "UNKNOWN" TNF exclusively, which means that the
-/// Type field is omitted, and the client/server are implicitly programmed to
-/// only deal with TNFs of this type.
+/// ID that goes in the same Message/Record byte as the NDEF Control Bits.
+/// MPipe2 ignores this value, using OTC_MPIPE_TNF_EMPTY (0).
 
-#define OTC_MPIPE_TNF_MASK               0X07
+#define OTC_MPIPE_TNF_MASK               0x07
 #define OTC_MPIPE_TNF_EMPTY              0x00
 #define OTC_MPIPE_TNF_WELLKNOWN          0x01
 #define OTC_MPIPE_TNF_MEDIATYPE          0x02
@@ -146,11 +155,9 @@ const unsigned short crcLut[] =
 #define OTC_MPIPE_TNF_UNCHANGED          0x06
 #define OTC_MPIPE_TNF_RESERVED           0x07
 
-/// NDEF header structure
-typedef union 
-{
-    struct
-    {
+/// ALP/NDEF header structure
+typedef union  {
+    struct {
         unsigned int typeName           :3;
         unsigned int idLength           :1;
         unsigned int shortRecord        :1;
@@ -163,15 +170,9 @@ typedef union
 } otc_mpipe_header_flags_t;
 
 
-/// OT specific sync word
-typedef enum
-{
-    OTC_MPIPE_SYNC_WORD_CHUNK_NO         = 0xDD,
-    OTC_MPIPE_SYNC_WORD_CHUNK_FIRST      = 0xBD,
-    OTC_MPIPE_SYNC_WORD_CHUNK_CONTINUE   = 0x36,
-    OTC_MPIPE_SYNC_WORD_CHUNK_LAST       = 0x56
 
-} otc_mpipe_superstate_t;
+
+
 
 
 // ----------------------------------
@@ -180,33 +181,35 @@ typedef enum
 //
 // ----------------------------------
 
-/// NDEF Header size
-#define OTC_MPIPE_HEADER_SIZE            6
+/// MPIPE Header size
+#define OTC_MPIPE_HEADER_SIZE       8
 
-/// NDEF Footer size
-#define OTC_MPIPE_FOOTER_SIZE            4
+/// MPIPE ALP size
+#define OTC_MPIPE_ALP_SIZE          4
 
 
-/// OT-NDEF Builder Object Class
-class otc_mpipe_builder
-{
+/// MPIPE Builder Object Class
+class otc_mpipe_builder {
 public :
     
     otc_mpipe_builder(unsigned char bodylen);
     ~otc_mpipe_builder();
 
-    void                                header(unsigned char id, unsigned char cmd);
+    void                                header(unsigned char id, unsigned char cmd, unsigned char seq);
     void                                body(unsigned char * data);
-    void                                footer(unsigned short seq);
+    void                                footer();
     int                                 len(void)	{return size;};
     unsigned char *                     start(void)	{return buffer;};
 
 private :   
 
-    unsigned char *                     buffer;
+    unsigned char *                     outbuf;
     int                                 size;
-    otc_mpipe_superstate_t              superstate;
+    //otc_mpipe_superstate_t              superstate;
 };
+
+
+
 
 
 // ----------------------------------
@@ -215,67 +218,62 @@ private :
 //
 // ----------------------------------
 
+typedef enum {
+    OTC_MPIPE_SYNC_WORD_CHUNK_IMPLICIT   = 0,
+    OTC_MPIPE_SYNC_WORD_CHUNK_CONTINUE   = 1,
+    OTC_MPIPE_SYNC_WORD_CHUNK_LAST       = 2,
+    OTC_MPIPE_SYNC_WORD_CHUNK_FIRST      = 5,
+    OTC_MPIPE_SYNC_WORD_CHUNK_NO         = 6
+} otc_mpipe_superstate_t;
+
 
 /// Parser state
-typedef enum 
-{
+typedef enum {
     OTC_MPIPE_PARSER_STATE_SYNC          = 0,
-    OTC_MPIPE_PARSER_STATE_START,
-    OTC_MPIPE_PARSER_STATE_TYPELEN,
-    OTC_MPIPE_PARSER_STATE_DATALEN,
-    OTC_MPIPE_PARSER_STATE_IDLEN,
-    OTC_MPIPE_PARSER_STATE_READ_FIRST,
-    OTC_MPIPE_PARSER_STATE_READ_CONTINUE,
-    OTC_MPIPE_PARSER_STATE_READ_TAIL,
+    OTC_MPIPE_PARSER_STATE_SYNC2,
+    OTC_MPIPE_PARSER_STATE_HEADER,
+    OTC_MPIPE_PARSER_STATE_ALP,
+    OTC_MPIPE_PARSER_STATE_DATA,
     OTC_MPIPE_PARSER_STATE_DONE          = 0x7f,
     OTC_MPIPE_PARSER_STATE_ERROR         = 0x80
-
 } otc_mpipe_parser_state_t;
 
 
 /// Parser buffer indexes
-typedef enum
-{
-    OTC_MPIPE_BUFFER_INDEX_FIRST         = 0,
-    OTC_MPIPE_BUFFER_INDEX_TYPE          = OTC_MPIPE_BUFFER_INDEX_FIRST,
-    OTC_MPIPE_BUFFER_INDEX_ID,
+typedef enum {
+    OTC_MPIPE_BUFFER_INDEX_FIRST        = 0,
+    OTC_MPIPE_BUFFER_INDEX_CRC          = OTC_MPIPE_BUFFER_INDEX_FIRST,
+    OTC_MPIPE_BUFFER_INDEX_HEADER,
+    OTC_MPIPE_BUFFER_INDEX_ALP,
     OTC_MPIPE_BUFFER_INDEX_DATA,
-    OTC_MPIPE_BUFFER_INDEX_SEQ,
-    OTC_MPIPE_BUFFER_INDEX_CRC,
     OTC_MPIPE_BUFFER_INDEX_QTY
-
 } otc_mpipe_buffer_index_t;
 
 
 /// Buffer class
-typedef struct
-{
+typedef struct {
     unsigned char  size;
     unsigned char  offset;
     unsigned char  remain;
     unsigned char* payload;
-
 } otc_mpipe_buffer_t;
 
 
-/// MPIPE OT-NDEF Parser Object Class
-class otc_mpipe_parser
-{
+/// MPIPE Parser Object Class
+class otc_mpipe_parser {
 
 public :
-    
     otc_mpipe_parser();
     ~otc_mpipe_parser();
     bool                            parse(unsigned char* buffer, int toread);
     bool                            sync(unsigned char* buffer);
 
 private :   
-
     otc_mpipe_parser_state_t        state;
     otc_mpipe_superstate_t          superstate;
-    otc_mpipe_header_flags_t        header;
+    //otc_mpipe_header_flags_t        header;
     otc_mpipe_buffer_t              buffer[OTC_MPIPE_BUFFER_INDEX_QTY];
-    unsigned int                    currentBuffer;
+    //unsigned int                    currentBuffer;
     unsigned short                  crc;
     bool                            crcStatus;
     QString                         msg;

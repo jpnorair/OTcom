@@ -160,8 +160,8 @@ otc_error_t otc_command_null::exec(const QString& cmd_string,
 {
     // construct message with NULL body
     otc_mpipe_builder msg(0);
-    msg.header(OTC_ALP_ID_NULL, m_cmd | parser->echo());
-    msg.footer(parser->seq());
+    msg.header(OTC_ALP_ID_NULL, m_cmd | parser->echo(), parser->seq());
+    msg.footer();
 
     // write to serial
     parser->log(m_log, msg.start(), msg.len());
@@ -281,9 +281,9 @@ otc_error_t otc_command_raw::exec(const QString& cmd_string,
 
     // construct message with NULL body
     otc_mpipe_builder msg((unsigned char)m_bodylen);
-    msg.header(m_id, m_cmd | parser->echo());
+    msg.header(m_id, m_cmd | parser->echo(), parser->seq());
     msg.body(m_body);
-    msg.footer(parser->seq());
+    msg.footer();
 
     // write to serial
     parser->log(m_log, msg.start(), msg.len());
@@ -489,9 +489,9 @@ otc_error_t otc_command_file::exec(const QString& cmd_string,
 
     /// construct message with NULL body
     otc_mpipe_builder msg((unsigned char)m_bodylen);
-    msg.header(OTC_ALP_ID_FILE_DATA, m_cmd | parser->echo());
+    msg.header(OTC_ALP_ID_FILE_DATA, m_cmd | parser->echo(), parser->seq());
     msg.body(&m_body[0]);
-    msg.footer(parser->seq());
+    msg.footer();
 
     /// write to serial
     parser->log(m_log, msg.start(), msg.len());
